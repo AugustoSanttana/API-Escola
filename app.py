@@ -123,5 +123,24 @@ def delete_professores(id: int):
     
     return jsonify(error="Professor não encontrado para deletagem"), 404
 
+# Rota UPDATE professor por ID
+
+@app.route("/professores/<int:id>", methods=["PATCH"])
+def update_professor(id: int):
+    
+    novo_nome_professor = request.get_json()
+
+    if not novo_nome_professor or "nome" not in novo_nome_professor:
+        return jsonify(error="PayLoad inválido"), 400
+    
+    for professor in professores:
+        if professor["id"] == id:
+            professor["nome"] = novo_nome_professor["nome"]
+            return jsonify(msg="Nome do professor atualizado com sucesso!"), 200
+        
+    return jsonify(error="Professor não encontrado para atualização!"), 404
+
+
+
 if __name__ == "__main__":
     app.run()
