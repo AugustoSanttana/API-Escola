@@ -6,7 +6,7 @@ professores = banco_de_dados["professores"]
 
 app = Flask(__name__)
 
-# Rota 
+# Rotas
 
 # Rota GET todos os alunos
 @app.route("/alunos", methods=["GET"])
@@ -73,6 +73,27 @@ def update_aluno(id: int):
             return jsonify(msg="nome do aluno atualizado com sucesso"), 200
 
     return jsonify(error="aluno não encontrado para atualização"), 404
+
+
+# Rotas Professor
+
+@app.route("/professores", methods=["GET"])
+def get_professores():
+    if not professores: 
+        return jsonify(msg="Nenhum professor cadastrado"), 200
+    return jsonify(professores), 200
+
+# GET Professor por ID
+
+@app.route("/professores/<int:id>", methods=["GET"])
+def get_professor(id: int):
+    for professor in professores:
+        if professor["id"] == id:
+          return jsonify(professor), 200
+    
+    return jsonify(error="Professor não encontrado"), 404
+    
+
 
 
 if __name__ == "__main__":
