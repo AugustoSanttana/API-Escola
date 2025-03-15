@@ -75,7 +75,7 @@ def update_aluno(id: int):
     return jsonify(error="aluno não encontrado para atualização"), 404
 
 
-# Rotas Professor
+# Rotas Professor GET
 
 @app.route("/professores", methods=["GET"])
 def get_professores():
@@ -92,9 +92,36 @@ def get_professor(id: int):
           return jsonify(professor), 200
     
     return jsonify(error="Professor não encontrado"), 404
+
+# Rota professor POST
     
+@app.route("/professores", methods=["POST"])
+def create_professores():
+    novo_professor = request.get_json()
+    print(novo_professor)
 
+    if not novo_professor or "id" not in novo_professor or "nome" not in novo_professor:
+        return jsonify(error="payload inválido"), 400
 
+    ids_professores = [professor["id"] for professor in professores]
+
+    if novo_professor["id"] in ids_professores:
+        return jsonify(error="id já existente"), 409
+
+    professores.append(novo_professor)
+    return jsonify(msg="professor cadastrado com sucesso"), 201
+
+# Rota DELETE professor por ID
+
+@app.route("/professores/<int:id>", methods= ["DELETE"])
+def delete_professores(id: int):
+    
+    for professor in professores:
+        if professor["id"] == id:
+            professores.remove(professor)
+            return jsonify(msg= "Professor removido com sucesso"), 200
+    
+    return jsonify(error="Professor não encontrado para deletagem"), 404
 
 if __name__ == "__main__":
     app.run()
