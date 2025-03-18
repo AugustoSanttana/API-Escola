@@ -174,6 +174,11 @@ def create_turma():
 
     if nova_turma["id"] in ids_turmas:
         return jsonify(error="id já existente"), 409
+    
+    ids_professores = [professor["id"] for professor in professores]
+
+    if nova_turma["professor_id"] not in ids_professores:
+        return jsonify(error="Professor não existe"), 404
 
     turmas.append(nova_turma)
     return jsonify(msg="Turma cadastrada com sucesso"), 201
