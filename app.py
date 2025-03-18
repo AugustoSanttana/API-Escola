@@ -3,6 +3,7 @@ from database import banco_de_dados
 
 alunos = banco_de_dados["alunos"]
 professores = banco_de_dados["professores"]
+turmas = banco_de_dados["turmas"]
 
 app = Flask(__name__)
 
@@ -139,6 +140,71 @@ def update_professor(id: int):
             return jsonify(msg="Nome do professor atualizado com sucesso!"), 200
         
     return jsonify(error="Professor não encontrado para atualização!"), 404
+
+# Rota GET para Turma
+
+@app.route("/turmas", methods=["GET"])
+def get_turmas():
+    if not turmas:
+        return jsonify(msg="nenhuma turma cadastrada"), 200
+
+    return jsonify(turmas), 200
+
+# Rota GET turmas por ID
+@app.route("/turmas/<int:id>", methods=["GET"])
+def get_turma(id: int):
+
+    for turma in turmas:
+        if turma["id"] == id:
+            return jsonify(turma), 200
+
+    return jsonify(error="Turma não encontrada"), 404
+
+# Rota POST Turma
+
+@app.route("/turmas", methods=["POST"])
+def create_turma():
+    nova_turma = request.get_json()
+    print(nova_turma)
+
+    if not nova_turma or "id" not in nova_turma or "nome" not in nova_turma:
+        return jsonify(error="payload inválido"), 400
+
+    ids_turmas = [turma["id"] for turma in turmas]
+
+    if nova_turma["id"] in ids_turmas:
+        return jsonify(error="id já existente"), 409
+
+    turmas.append(nova_turma)
+    return jsonify(msg="Turma cadastrada com sucesso"), 201
+
+# Rota DELETE Turmas por ID
+@app.route("/turmas/<int:id>", methods=["DELETE"])
+def delete_turma(id: int):
+
+    for turma in turmas:
+        if turma["id"] == id:
+            turmas.remove(turma)
+            return jsonify(msg="Turma deletada com sucesso"), 200
+
+    return jsonify(error="Turma não encontrada para deletagem"), 404
+
+# Rota UPDATE Turmas por ID
+@app.route("/turmas/<int:id>", methods=["PATCH"])
+def update_turma(id: int):
+    
+    novo_nome_turma = request.get_json()
+
+    if not novo_nome_turma or "nome" not in novo_nome_turma:
+        return jsonify(error="PayLoad inválido"), 400
+    
+    for turma in turmas:
+        if turma["id"] == id:
+            turma["nome"] = novo_nome_turma["nome"]
+            return jsonify(msg="Nome da Turma atualizada com sucesso!"), 200
+        
+    return jsonify(error="Turma não encontrada para atualização!"), 404
+
 
 
 
