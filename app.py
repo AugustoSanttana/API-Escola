@@ -45,7 +45,7 @@ def create_aluno():
     novo_aluno = request.get_json()
 
     try:
-        novo_aluno = CreateAlunoPayload(**novo_aluno)
+        CreateAlunoPayload(**novo_aluno)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
 
@@ -53,7 +53,7 @@ def create_aluno():
     ids_turmas_cadastradas = [turma["id"] for turma in turmas]
 
     if novo_aluno["id"] in ids_cadastrados:
-        return jsonify(error="id ja utilizado"), 400
+        return jsonify(error="id do aluno ja utilizado"), 400
 
     if novo_aluno["turma_id"] not in ids_turmas_cadastradas:
         return jsonify(error="turma não existe"), 404
@@ -71,7 +71,7 @@ def delete_aluno(id: int):
             alunos.remove(aluno)
             return jsonify(msg="aluno deletado com sucesso"), 200
 
-    return jsonify(error="aluno não encontrado"), 404
+    return jsonify(error="aluno não encontrado para deletagem"), 404
 
 
 # Rota UPDATE alunos por ID
@@ -84,13 +84,19 @@ def update_aluno(id: int):
         UpdateAlunoPayload(**aluno_atualizado)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
+    
+    ids_turmas_cadastradas = [turma["id"] for turma in turmas]
 
-    for aluno in alunos:
-        if aluno["id"] == id:
-            aluno = aluno_atualizado
+    if aluno_atualizado["turma_id"] not in ids_turmas_cadastradas:
+        return jsonify(error="turma não existe"), 404
+
+    for index, aluno in enumerate(alunos):
+        if aluno.get('id') == id:
+            aluno_atualizado["id"] = id
+            alunos[index] = aluno_atualizado
             return jsonify(msg="aluno atualizado com sucesso"), 200
 
-    return jsonify(error="aluno não encontrado"), 404
+    return jsonify(error="aluno não encontrado para atualização"), 404
 
 
 # Rotas Professor GET
@@ -131,7 +137,7 @@ def create_professores():
     ids_professores = [professor["id"] for professor in professores]
 
     if novo_professor["id"] in ids_professores:
-        return jsonify(error="id ja utilizado"), 400
+        return jsonify(error="id do professor já utilizado"), 400
 
     professores.append(novo_professor)
     return jsonify(msg="professor cadastrado com sucesso"), 200
@@ -148,7 +154,7 @@ def delete_professores(id: int):
             professores.remove(professor)
             return jsonify(msg="professor removido com sucesso"), 200
 
-    return jsonify(error="professor não encontrado"), 400
+    return jsonify(error="professor não encontrado para deletagem"), 400
 
 
 # Rota UPDATE professor por ID
@@ -164,12 +170,13 @@ def update_professor(id: int):
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
 
-    for professor in professores:
-        if professor["id"] == id:
-            professor = professor_atualizado
-            return jsonify(msg="professor atualizado com sucesso!"), 200
+    for index, professor in enumerate(professores):
+        if professor.get('id') == id:
+            professor_atualizado["id"] = id
+            professores[index] = professor_atualizado
+            return jsonify(msg="professor atualizado com sucesso"), 200
 
-    return jsonify(error="professor não encontrado"), 400
+    return jsonify(error="professor não encontrado para atualização"), 400
 
 
 # Rota GET para Turma
@@ -210,7 +217,7 @@ def create_turma():
     ids_professores = [professor["id"] for professor in professores]
 
     if nova_turma["id"] in ids_turmas:
-        return jsonify(error="id já existente"), 409
+        return jsonify(error="id da turma já existente"), 409
 
     if nova_turma["professor_id"] not in ids_professores:
         return jsonify(error="professor não existe"), 404
@@ -242,9 +249,10 @@ def update_turma(id: int):
     except ValidationError:
         return jsonify(error="payload inválido"), 400
 
-    for turma in turmas:
-        if turma["id"] == id:
-            turma = turma_atualizada
+    for index, turma in enumerate(turmas):
+        if turma.get("id") == id:
+            turma_atualizada["id"] = id
+            turmas[index] = turma_atualizada
             return jsonify(msg="turma atualizada com sucesso"), 200
 
     return jsonify(error="turma não encontrada para atualização"), 404
@@ -259,4 +267,4 @@ def resetar_servidor():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=False, port=8000)
