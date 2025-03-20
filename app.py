@@ -84,14 +84,14 @@ def update_aluno(id: int):
         UpdateAlunoPayload(**aluno_atualizado)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
-    
+
     ids_turmas_cadastradas = [turma["id"] for turma in turmas]
 
     if aluno_atualizado["turma_id"] not in ids_turmas_cadastradas:
         return jsonify(error="turma não existe"), 404
 
     for index, aluno in enumerate(alunos):
-        if aluno.get('id') == id:
+        if aluno.get("id") == id:
             aluno_atualizado["id"] = id
             alunos[index] = aluno_atualizado
             return jsonify(msg="aluno atualizado com sucesso"), 200
@@ -171,7 +171,7 @@ def update_professor(id: int):
         return jsonify(error="payload inválido!"), 400
 
     for index, professor in enumerate(professores):
-        if professor.get('id') == id:
+        if professor.get("id") == id:
             professor_atualizado["id"] = id
             professores[index] = professor_atualizado
             return jsonify(msg="professor atualizado com sucesso"), 200
