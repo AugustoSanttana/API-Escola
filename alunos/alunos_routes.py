@@ -2,27 +2,26 @@
 from flask import jsonify, request, Blueprint
 from pydantic import ValidationError
 from spec.payloads import CreateAlunoPayload, UpdateAlunoPayload
+from alunos.alunos_models import ModelAlunos
 
 alunos_blueprint = Blueprint('aluno', __name__)
 
 # Rota GET todos os alunos
 @alunos_blueprint.route("/alunos", methods=["GET"])
 def get_alunos():
-    if not alunos:
+    response = ModelAlunos().get_alunos()
+    if not response:
         return jsonify(msg="nenhum aluno cadastrado"), 200
-
-    return jsonify(alunos), 200
+    return jsonify(response), 200
 
 
 # Rota GET aluno por ID
 @alunos_blueprint.route("/alunos/<int:id>", methods=["GET"])
 def get_aluno(id: int):
-
-    for aluno in alunos:
-        if aluno["id"] == id:
-            return jsonify(aluno), 200
-
-    return jsonify(error="aluno não encontrado"), 404
+    response = ModelAlunos().get_aluno_by_id(id)
+    if not response:
+        return jsonify(error='aluno não encontrado'), 404
+    return jsonify(response), 200
 
 
 # Rota POST aluno
@@ -34,30 +33,24 @@ def create_aluno():
         CreateAlunoPayload(**novo_aluno)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
+    
+    response = ModelAlunos().post_aluno(novo_aluno)
 
-    ids_cadastrados = [aluno["id"] for aluno in alunos]
-    ids_turmas_cadastradas = [turma["id"] for turma in turmas]
+    if response.get('error'):
+        return jsonify({"error": response['error']}), response['status_code']
 
-    if novo_aluno["id"] in ids_cadastrados:
-        return jsonify(error="id do aluno ja utilizado"), 400
-
-    if novo_aluno["turma_id"] not in ids_turmas_cadastradas:
-        return jsonify(error="turma não existe"), 404
-
-    alunos.append(novo_aluno)
-    return jsonify(msg="aluno cadastrado com sucesso"), 200
-
+    return jsonify(msg=response['msg']), 200
 
 # Rota DELETE aluno por ID
 @alunos_blueprint.route("/alunos/<int:id>", methods=["DELETE"])
 def delete_aluno(id: int):
 
-    for aluno in alunos:
-        if aluno["id"] == id:
-            alunos.remove(aluno)
-            return jsonify(msg="aluno deletado com sucesso"), 200
+    response = ModelAlunos().delete_aluno(id)
 
-    return jsonify(error="aluno não encontrado para deletagem"), 404
+    if not response:
+        return jsonify(error="aluno não encontrado para deletagem"), 404
+
+    return jsonify(msg="aluno deletado com sucesso"), 200
 
 
 # Rota UPDATE alunos por ID
@@ -71,18 +64,12 @@ def update_aluno(id: int):
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
 
-    ids_turmas_cadastradas = [turma["id"] for turma in turmas]
+    response = ModelAlunos().update_aluno(id, aluno_atualizado)
 
-    if aluno_atualizado["turma_id"] not in ids_turmas_cadastradas:
-        return jsonify(error="turma não existe"), 404
-
-    for index, aluno in enumerate(alunos):
-        if aluno.get("id") == id:
-            aluno_atualizado["id"] = id
-            alunos[index] = aluno_atualizado
-            return jsonify(msg="aluno atualizado com sucesso"), 200
-
-    return jsonify(error="aluno não encontrado para atualização"), 404
+    if response.get('error'):
+        return jsonify({"error": response["error"]}), 404
+    
+    return jsonify(response), 200
 
 
 

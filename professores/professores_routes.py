@@ -7,9 +7,7 @@ from spec.payloads import (
 
 professores_blueprint = Blueprint('prefessor', __name__)
 
-
 # Rotas Professor GET
-
 
 @professores_blueprint.route("/professores", methods=["GET"])
 def get_professores():

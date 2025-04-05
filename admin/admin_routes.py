@@ -7,7 +7,7 @@ professores = banco_de_dados['professores']
 
 admin_blueprint = Blueprint('admin', __name__)
 
-@app.route("/reseta", methods=["PUT"])
+@admin_blueprint.route("/reseta", methods=["PUT"])
 def resetar_servidor():
     turmas.clear()
     alunos.clear()
