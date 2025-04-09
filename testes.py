@@ -114,7 +114,7 @@ def test_update_professor(client):
 def test_delete_professor(client):
     response = client.delete("/professores/2")
     assert response.status_code == 200
-    assert response.json["msg"] == "professor removido com sucesso"
+    assert response.json["msg"] == "professor deletado com sucesso"
 
     response = client.delete("/professores/2")
     assert response.status_code == 400
