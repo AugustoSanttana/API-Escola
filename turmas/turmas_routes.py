@@ -1,9 +1,8 @@
 from pydantic import ValidationError
 from flask import jsonify, request, Blueprint
-from spec.payloads import (
-    CreateTurmaPayload,
-    UpdateTurmaPayload,
-)
+from spec.payloads import CreateTurmaPayload, UpdateTurmaPayload
+from turmas.turmas_models import ModelTurmas
+
 
 turmas_blueprint = Blueprint('turma', __name__)
 
@@ -12,21 +11,19 @@ turmas_blueprint = Blueprint('turma', __name__)
 
 @turmas_blueprint.route("/turmas", methods=["GET"])
 def get_turmas():
-    if not turmas:
+    response = ModelTurmas().get_turmas()
+    if not response:
         return jsonify(msg="nenhuma turma cadastrada"), 200
-
-    return jsonify(turmas), 200
+    return jsonify(response), 200
 
 
 # Rota GET turmas por ID
 @turmas_blueprint.route("/turmas/<int:id>", methods=["GET"])
 def get_turma(id: int):
-
-    for turma in turmas:
-        if turma["id"] == id:
-            return jsonify(turma), 200
-
-    return jsonify(error="turma não encontrada"), 404
+    response = ModelTurmas().get_turmas_by_id(id)
+    if not response:
+        return jsonify(error='turma não encontrada'), 404
+    return jsonify(response), 200
 
 
 # Rota POST Turma
@@ -41,29 +38,22 @@ def create_turma():
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
 
-    ids_turmas = [turma["id"] for turma in turmas]
-    ids_professores = [professor["id"] for professor in professores]
+    response = ModelTurmas().post_turma(nova_turma)
 
-    if nova_turma["id"] in ids_turmas:
-        return jsonify(error="id da turma já existente"), 409
+    if response.get('error'):
+        return jsonify({"error": response['error']}), response['status_code']
 
-    if nova_turma["professor_id"] not in ids_professores:
-        return jsonify(error="professor não existe"), 404
-
-    turmas.append(nova_turma)
-    return jsonify(msg="turma cadastrada com sucesso"), 201
-
+    return jsonify(msg=response['msg']), 201
 
 # Rota DELETE Turmas por ID
 @turmas_blueprint.route("/turmas/<int:id>", methods=["DELETE"])
 def delete_turma(id: int):
+    response = ModelTurmas().delete_turma(id)
 
-    for turma in turmas:
-        if turma["id"] == id:
-            turmas.remove(turma)
-            return jsonify(msg="turma deletada com sucesso"), 200
-
-    return jsonify(error="turma não encontrada para deletagem"), 404
+    if not response:
+        return jsonify(error="turma não encontrada para deletagem"), 404
+    
+    return jsonify(msg="turma deletada com sucesso"), 200
 
 
 # Rota UPDATE Turmas por ID
@@ -77,10 +67,9 @@ def update_turma(id: int):
     except ValidationError:
         return jsonify(error="payload inválido"), 400
 
-    for index, turma in enumerate(turmas):
-        if turma.get("id") == id:
-            turma_atualizada["id"] = id
-            turmas[index] = turma_atualizada
-            return jsonify(msg="turma atualizada com sucesso"), 200
+    response = ModelTurmas().update_turma(id, turma_atualizada)
 
-    return jsonify(error="turma não encontrada para atualização"), 404
+    if response.get('error'):
+        return jsonify({"error": response["error"]}), 404
+    
+    return jsonify(response), 200
