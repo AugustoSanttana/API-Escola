@@ -1,3 +1,5 @@
+from flask_sqlalchemy import SQLAlchemy
+
 from alunos.alunos_routes import alunos_blueprint
 from professores.professores_routes import professores_blueprint
 from turmas.turmas_routes import turmas_blueprint
