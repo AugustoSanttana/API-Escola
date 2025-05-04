@@ -6,8 +6,8 @@ services:
     restart: always
     environment:
       - POSTGRES_USER=postgres  
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=Az1310750412
+      - POSTGRES_DB=escola
     ports:
       - "5432:5432"
     volumes:
@@ -19,7 +19,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+      DATABASE_URL:  postgresql://postgres:Az1310750412@177.81.186.211:5432/escola
     depends_on:
       - db
 
