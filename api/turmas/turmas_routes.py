@@ -2,6 +2,14 @@ from pydantic import ValidationError
 from flask import jsonify, request, Blueprint
 from spec.payloads import TurmaPayload
 from turmas.turmas_models import ModelTurmas
+from flasgger import swag_from
+from docs_api.turmas import (
+    create_turma_doc,
+    delete_turma_doc,
+    get_turma_by_id_doc,
+    get_turmas_doc,
+    update_turma_doc
+)
 
 
 turmas_blueprint = Blueprint('turma', __name__)
@@ -10,15 +18,17 @@ turmas_blueprint = Blueprint('turma', __name__)
 
 
 @turmas_blueprint.route("/turmas", methods=["GET"])
+@swag_from(get_turmas_doc)
 def get_turmas():
     response = ModelTurmas().get_turmas()
     if not response:
-        return jsonify(msg="nenhuma turma cadastrada"), 200
+        return jsonify(msg="nenhuma turma cadastrada"), 204
     return jsonify(response), 200
 
 
 # Rota GET turmas por ID
 @turmas_blueprint.route("/turmas/<int:id>", methods=["GET"])
+@swag_from(get_turma_by_id_doc)
 def get_turma(id: int):
     response = ModelTurmas().get_turmas_by_id(id)
     if not response:
@@ -30,6 +40,7 @@ def get_turma(id: int):
 
 
 @turmas_blueprint.route("/turmas", methods=["POST"])
+@swag_from(create_turma_doc)
 def create_turma():
     nova_turma = request.get_json()
 
@@ -47,6 +58,7 @@ def create_turma():
 
 # Rota DELETE Turmas por ID
 @turmas_blueprint.route("/turmas/<int:id>", methods=["DELETE"])
+@swag_from(delete_turma_doc)
 def delete_turma(id: int):
     response = ModelTurmas().delete_turma(id)
 
@@ -58,6 +70,7 @@ def delete_turma(id: int):
 
 # Rota UPDATE Turmas por ID
 @turmas_blueprint.route("/turmas/<int:id>", methods=["PUT"])
+@swag_from(update_turma_doc)
 def update_turma(id: int):
 
     turma_atualizada = request.get_json()
