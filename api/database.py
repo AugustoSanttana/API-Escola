@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.engine import create_engine
 
-engine = create_engine(url="postgresql://postgres:Az1310750412@127.0.0.1:5432/escola", enable_from_linting=False, echo=False)
+engine = create_engine(url="postgresql://postgres:Az1310750412@177.81.186.211:5432/escola", enable_from_linting=False, echo=False)
  
 class DatabaseManager:
     
