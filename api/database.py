@@ -1,46 +1,29 @@
-banco_de_dados = {
-    "alunos": [
-        {
-            "id": 1,
-            "nome": "ExemploAluno1",
-            "idade": 11,
-            "data_nascimento": "(2014/03/18)",
-            "nota_primeiro_semestre": 8,
-            "nota_segundo_semestre": 7,
-            "media_final": 7.5,
-            "turma_id": 2,
-        },
-        {
-            "id": 2,
-            "nome": "ExemploAluno2",
-            "idade": 11,
-            "data_nascimento": "(2013/04/02)",
-            "nota_primeiro_semestre": 6,
-            "nota_segundo_semestre": 5,
-            "media_final": 5.5,
-            "turma_id": 1,
-        },
-    ],
-    "professores": [
-        {
-            "id": 1,
-            "nome": "Tonho",
-            "idade": 44,
-            "data_nascimento": "(1980/07/23)",
-            "disciplina": "Matemática",
-            "salario": 2800.00,
-        },
-        {
-            "id": 2,
-            "nome": "Joca",
-            "idade": 49,
-            "data_nascimento": "(1975/05/26)",
-            "disciplina": "História",
-            "salario": 2600.00,
-        },
-    ],
-    "turmas": [
-        {"id": 1, "nome": "sexto ano", "turno": "Matutino", "professor_id": 1},
-        {"id": 2, "nome": "sétimo ano", "turno": "Matutino", "professor_id": 1},
-    ],
-}
+from sqlalchemy import text
+from sqlalchemy.engine import create_engine
+
+engine = create_engine(url="postgresql://postgres:Az1310750412@127.0.0.1:5432/escola", enable_from_linting=False, echo=False)
+ 
+class DatabaseManager:
+    
+    engine = engine
+ 
+    def _init_(self) -> None:
+        pass
+
+    def execute_sql_str(self, sql: str, query=False):
+        with self.engine.connect() as conn:
+            with conn.begin():
+                result = conn.execute(text(sql))
+                if query:
+                    return result.fetchall()
+                return None
+
+    def select_one(self, sql: str):
+        with self.engine.begin() as conn:
+            result = conn.execute(text(sql))
+            return result.fetchone()
+    
+    def select_all(self, sql: str):
+        with self.engine.begin() as conn:
+            result = conn.execute(text(sql))
+            return result.fetchall()

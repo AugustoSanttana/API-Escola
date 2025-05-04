@@ -1,7 +1,7 @@
 
 from flask import jsonify, request, Blueprint
 from pydantic import ValidationError
-from spec.payloads import CreateAlunoPayload, UpdateAlunoPayload
+from spec.payloads import AlunoPayload
 from alunos.alunos_models import ModelAlunos
 
 alunos_blueprint = Blueprint('aluno', __name__)
@@ -30,7 +30,7 @@ def create_aluno():
     novo_aluno = request.get_json()
 
     try:
-        CreateAlunoPayload(**novo_aluno)
+        AlunoPayload(**novo_aluno)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
     
@@ -60,7 +60,7 @@ def update_aluno(id: int):
     aluno_atualizado = request.get_json()
 
     try:
-        UpdateAlunoPayload(**aluno_atualizado)
+        AlunoPayload(**aluno_atualizado)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
 

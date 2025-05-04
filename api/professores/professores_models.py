@@ -1,6 +1,4 @@
-from database import banco_de_dados
-
-professores: list = banco_de_dados["professores"]
+from database import DatabaseManager
 
 class ModelProfessores():
 
@@ -8,39 +6,40 @@ class ModelProfessores():
     ...
     
   def get_professores(self) -> list:
-    if professores:
-      return professores
-    return []
+    professores_db = DatabaseManager().select_all("SELECT * FROM professores")
+    return [professor._asdict() for professor in professores_db] if professores_db else []
   
   def get_professores_by_id(self, id: int) -> dict:
-    for professor in professores:
-      if professor["id"] == id:
-        return professor
-    return {}
+    professor_db = DatabaseManager().select_one(f"SELECT * FROM professores WHERE id = {id}")
+    return professor_db._asdict() if professor_db else {}
   
   def post_professor(self, novo_professor: dict) -> dict:
-    ids_cadastrados = [professor["id"] for professor in professores]
-    
-    if novo_professor["id"] in ids_cadastrados:
-        return {"error": "id do aluno ja utilizado", "status_code": 400}
-      
-    professores.append(novo_professor)
+    DatabaseManager().execute_sql_str(f"INSERT INTO professores(nome, idade, materia, observacoes) VALUES('{novo_professor.get('nome')}', {novo_professor.get('idade')}, '{novo_professor.get('materia')}', '{novo_professor.get('observacoes')}')")
     return {"msg":"professor cadastrado com sucesso"}
   
   def delete_professor(self, id: int) -> bool:
-    for professor in professores:
-      if professor["id"] == id:
-        professores.remove(professor)
-        return True
-    return False
+
+    professor_db_deletar = DatabaseManager().select_one(f"SELECT * FROM professores WHERE id = {id}")
+    if not professor_db_deletar:
+      return False
+    DatabaseManager().execute_sql_str(f"DELETE FROM professores WHERE id = {id}")
+    return True
   
   def update_professor(self, id: int, professor_atualizado: dict) -> dict:
-    
-    for index, professor in enumerate(professores):
-      if professor.get("id") == id:
-        professor_atualizado["id"] = id
-        professores[index] = professor_atualizado
-        return {"msg":"professor atualizado com sucesso"}
-      
-    return {"error":"professor não encontrado para atualização"}
+
+    professor_db_atualizar = DatabaseManager().select_one(f"SELECT * FROM professores WHERE id = {id}")
+
+    if not professor_db_atualizar:
+      return {"error":"professor não encontrado para atualização"}
         
+
+    
+    DatabaseManager().execute_sql_str(f"""UPDATE professores
+      SET nome = '{professor_atualizado['nome']}',
+      idade = {professor_atualizado['idade']},
+      materia = '{professor_atualizado['materia']}',
+      observacoes = '{professor_atualizado['observacoes']}'
+      WHERE id = {id}"""
+    )
+    return {"msg":"professor atualizado com sucesso"}
+    

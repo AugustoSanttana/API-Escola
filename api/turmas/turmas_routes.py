@@ -1,6 +1,6 @@
 from pydantic import ValidationError
 from flask import jsonify, request, Blueprint
-from spec.payloads import CreateTurmaPayload, UpdateTurmaPayload
+from spec.payloads import TurmaPayload
 from turmas.turmas_models import ModelTurmas
 
 
@@ -34,7 +34,7 @@ def create_turma():
     nova_turma = request.get_json()
 
     try:
-        CreateTurmaPayload(**nova_turma)
+        TurmaPayload(**nova_turma)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
 
@@ -63,7 +63,7 @@ def update_turma(id: int):
     turma_atualizada = request.get_json()
 
     try:
-        UpdateTurmaPayload(**turma_atualizada)
+        TurmaPayload(**turma_atualizada)
     except ValidationError:
         return jsonify(error="payload inválido"), 400
 

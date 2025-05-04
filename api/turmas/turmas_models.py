@@ -1,52 +1,45 @@
-from database import banco_de_dados
-
-turmas: list = banco_de_dados["turmas"]
-professores: list = banco_de_dados["professores"]
+from database import DatabaseManager
 
 class ModelTurmas():
 
   def __init__(self) -> None:
     ...
   def get_turmas(self) -> list:
-    if turmas:
-        return turmas
-    return []
+    turmas_db = DatabaseManager().select_all("SELECT * FROM turmas")
+    return [turma._asdict() for turma in turmas_db] if turmas_db else []
   
   def get_turmas_by_id(self, id: int) -> dict:
-    for turma in turmas:
-        if turma["id"] == id:
-           return turma
-    return {}
-  
+    turma_db = DatabaseManager().select_one(f"SELECT * FROM turmas WHERE id = {id}")
+    return turma_db._asdict() if turma_db else {}
   
   def post_turma(self, nova_turma: dict) -> dict:
-    ids_turmas = [turma["id"] for turma in turmas]
-    ids_professores = [professor["id"] for professor in professores]
-
-    if nova_turma["id"] in ids_turmas:
-        return {"error": "id da turma já existente", "status_code": 409}
+    ids_professores = [id[0] for id in DatabaseManager().select_all("SELECT id FROM professores")]
 
     if nova_turma["professor_id"] not in ids_professores:
-        return  {"error": "professor não existe", "status_code": 404}
+      return  {"error": "professor não existe", "status_code": 404}
 
-    turmas.append(nova_turma)
+    DatabaseManager().execute_sql_str(f"INSERT INTO turmas(descricao, professor_id, ativo) VALUES('{nova_turma.get('descricao')}', {nova_turma.get('professor_id')}, {nova_turma.get('ativo')})")
     return {"msg": "turma cadastrada com sucesso"}
   
   def delete_turma(self, id: int) -> bool:
-    for turma in turmas:
-        if turma["id"] == id:
-            turmas.remove(turma)
-            return True
-    return False
-  
+    turma_db_deletar = DatabaseManager().select_one(f"SELECT * FROM turmas WHERE id = {id}")
+    if not turma_db_deletar:
+      return False
+    DatabaseManager().execute_sql_str(f"DELETE FROM turmas WHERE id = {id}")
+    return True
+
   def update_turma(self, id: int, turma_atualizada: dict) -> dict:
-    for index, turma in enumerate(turmas):
-        if turma.get("id") == id:
-            turma_atualizada["id"] = id
-            turmas[index] = turma_atualizada
-            return {"msg":"turma atualizada com sucesso"}
-        
-    return {"error":"turma não encontrada para atualização"}
+
+    ids_professores = [id[0] for id in DatabaseManager().select_all("SELECT id FROM professores")]
+    if turma_atualizada.get("professor_id") not in ids_professores:
+      return {"error":"id professor não existe"}
+
+    turma_db_atualizar = DatabaseManager().select_one(f"SELECT * FROM turmas WHERE id = {id}")
+    if not turma_db_atualizar:
+      return {"error":"turma não encontrada para atualização"}
+    
+    DatabaseManager().execute_sql_str(f"UPDATE turmas SET descricao = '{turma_atualizada.get('descricao')}', professor_id = {turma_atualizada.get('professor_id')}, ativo = {turma_atualizada.get('ativo')} WHERE id = {id}")
+    return {"msg":"turma atualizada com sucesso"}
 
     
        

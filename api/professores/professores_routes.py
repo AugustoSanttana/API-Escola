@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 from pydantic import ValidationError
-from spec.payloads import CreateProfessorPayload, UpdateProfessorPayload
+from spec.payloads import ProfessorPayload
 from professores.professores_models import ModelProfessores
 
 professores_blueprint = Blueprint('prefessores', __name__)
@@ -32,16 +32,12 @@ def create_professores():
     novo_professor = request.get_json()
 
     try:
-        CreateProfessorPayload(**novo_professor)
+        ProfessorPayload(**novo_professor)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
     
     response = ModelProfessores().post_professor(novo_professor) 
-    
-    if response.get('error'):
-        return jsonify({"error": response['error']}), response['status_code']
-
-    return jsonify(msg=response['msg']),200
+    return jsonify(msg=response['msg']), 200
 
 
 # Rota DELETE professor por ID
@@ -66,7 +62,7 @@ def update_professor(id: int):
     professor_atualizado = request.get_json()
 
     try:
-        UpdateProfessorPayload(**professor_atualizado)
+        ProfessorPayload(**professor_atualizado)
     except ValidationError:
         return jsonify(error="payload inválido!"), 400
 
