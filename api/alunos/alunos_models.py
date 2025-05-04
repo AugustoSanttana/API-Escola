@@ -16,10 +16,12 @@ class ModelAlunos():
   def post_aluno(self, novo_aluno: dict) -> dict:
     ids_turmas_cadastradas = [id[0] for id in DatabaseManager().select_all("SELECT id FROM turmas")]
 
+    media_final = (novo_aluno["nota_primeiro_semestre"] + novo_aluno["nota_segundo_semestre"]) / 2
+
     if novo_aluno["turma_id"] not in ids_turmas_cadastradas:
         return {"error": "turma não existe", "status_code": 404}
 
-    DatabaseManager().execute_sql_str(f"INSERT INTO alunos(nome, idade, turma_id, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, media_final) VALUES('{novo_aluno.get('nome')}', {novo_aluno.get('idade')}, {novo_aluno.get('turma_id')}, '{novo_aluno.get('data_nascimento')}', {novo_aluno.get('nota_primeiro_semestre')}, {novo_aluno.get('nota_segundo_semestre')}, {novo_aluno.get('media_final')})")
+    DatabaseManager().execute_sql_str(f"INSERT INTO alunos(nome, idade, turma_id, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, media_final) VALUES('{novo_aluno.get('nome')}', {novo_aluno.get('idade')}, {novo_aluno.get('turma_id')}, '{novo_aluno.get('data_nascimento')}', {novo_aluno.get('nota_primeiro_semestre')}, {novo_aluno.get('nota_segundo_semestre')}, {media_final})")
     return {"msg":"aluno cadastrado com sucesso"}
   
   def delete_aluno(self, id: int) -> bool:
@@ -40,6 +42,8 @@ class ModelAlunos():
 
     if aluno_atualizado["turma_id"] not in ids_turmas_cadastradas:
       return {"error":"turma não existe"}
+    
+    media_final = (aluno_atualizado["nota_primeiro_semestre"] + aluno_atualizado["nota_segundo_semestre"]) / 2
 
     DatabaseManager().execute_sql_str(f"""
       UPDATE alunos
@@ -49,7 +53,7 @@ class ModelAlunos():
         data_nascimento = '{aluno_atualizado.get('data_nascimento')}',
         nota_primeiro_semestre = {aluno_atualizado.get('nota_primeiro_semestre')},
         nota_segundo_semestre = {aluno_atualizado.get('nota_segundo_semestre')},
-        media_final = {aluno_atualizado.get('media_final')}
+        media_final = {media_final}
       WHERE id = {id}
     """)
     return {"msg":"aluno atualizado com sucesso"}

@@ -6,7 +6,6 @@ class AlunoPayload(BaseModel):
     data_nascimento: str
     nota_primeiro_semestre: float
     nota_segundo_semestre: float
-    media_final: float
     turma_id: int
 
 class ProfessorPayload(BaseModel):

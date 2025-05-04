@@ -22,7 +22,7 @@ turmas_blueprint = Blueprint('turma', __name__)
 def get_turmas():
     response = ModelTurmas().get_turmas()
     if not response:
-        return jsonify(msg="nenhuma turma cadastrada"), 204
+        return jsonify(msg="nenhuma turma cadastrada"), 200
     return jsonify(response), 200
 
 

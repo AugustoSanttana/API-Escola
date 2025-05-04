@@ -20,7 +20,7 @@ alunos_blueprint = Blueprint('aluno', __name__)
 def get_alunos():
     response = ModelAlunos().get_alunos()
     if not response:
-        return jsonify(msg="nenhum aluno cadastrado"), 204
+        return jsonify(msg="nenhum aluno cadastrado"), 404
     return jsonify(response), 200
 
 

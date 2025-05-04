@@ -2,7 +2,7 @@ get_alunos_doc = {
     "summary": "GET Todos os alunos",
     "tags": ["Alunos"],
     "responses": {
-        "204": {
+        "404": {
             "description": "Caso não tenha nenhum aluno cadastrado",
             "examples": {"application/json": {"msg": "nenhum aluno encontrado"}},
         },
@@ -88,7 +88,6 @@ create_aluno_doc = {
                     "data_nascimento": {"type": "string", "format": "date"},
                     "nota_primeiro_semestre": {"type": "number", "format": "float"},
                     "nota_segundo_semestre": {"type": "number", "format": "float"},
-                    "media_final": {"type": "number", "format": "float"},
                 },
                 "example": {
                     "nome": "Carlos",
@@ -97,7 +96,6 @@ create_aluno_doc = {
                     "data_nascimento": "2005-03-15",
                     "nota_primeiro_semestre": 7.5,
                     "nota_segundo_semestre": 8.0,
-                    "media_final": 7.75,
                 },
             },
         }
@@ -169,7 +167,6 @@ update_aluno_by_id_doc = {
                     "data_nascimento": {"type": "string", "format": "date"},
                     "nota_primeiro_semestre": {"type": "number", "format": "float"},
                     "nota_segundo_semestre": {"type": "number", "format": "float"},
-                    "media_final": {"type": "number", "format": "float"},
                 },
                 "example": {
                     "nome": "Carlos",
@@ -178,7 +175,6 @@ update_aluno_by_id_doc = {
                     "data_nascimento": "2005-03-15",
                     "nota_primeiro_semestre": 7.5,
                     "nota_segundo_semestre": 8.0,
-                    "media_final": 7.75,
                 },
             },
         },

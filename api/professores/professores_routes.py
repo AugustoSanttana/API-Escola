@@ -20,7 +20,7 @@ professores_blueprint = Blueprint('prefessores', __name__)
 def get_professores():
     response = ModelProfessores().get_professores()
     if not response:
-        return jsonify(msg="nenhum professor encontrado"), 204
+        return jsonify(msg="nenhum professor encontrado"), 200
     return jsonify(response), 200
 
 
