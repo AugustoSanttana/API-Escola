@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres  
+      - POSTGRES_PASSWORD=Az1310750412
+      - POSTGRES_DB=escola
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    
+  api:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL:  postgresql://postgres:Az1310750412@177.81.186.211:5432/escola
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+
+
+#docker-compose up --build  
+#comando para subir o banco e a api
